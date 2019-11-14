@@ -70,9 +70,5 @@ namespace Library.Repository
                 }
             }).Start(TaskScheduler.Default);
         }
-
-        /* En snurra här som varje sekund(?) kollar på Memcache-get och därmed triggar callbacken. Den ska då sätta memorycache själv. */
-
-
     }
 }
