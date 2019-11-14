@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using Library;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.HttpsPolicy;
@@ -26,6 +27,8 @@ namespace WebApplication2
         public void ConfigureServices(IServiceCollection services)
         {
             services.AddMvc().SetCompatibilityVersion(CompatibilityVersion.Version_2_1);
+
+            services.AddScoped<IDogService, DogService>();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
@@ -48,5 +51,8 @@ namespace WebApplication2
 
 /*
  * Vad är tanken här egentligen. 
+ * Det är att det ska vara en service som returnerar lite skit.
+ *
+ * Sen ska det vara en MemoryCache som jag kollar i, som när jag kollar i den, ska skicka sitt event om att den är tom. Det blir bra det. 
  *
  */

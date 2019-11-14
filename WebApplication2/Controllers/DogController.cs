@@ -8,7 +8,7 @@ namespace WebApplication2.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-    public class ValuesController : ControllerBase
+    public class DogController : ControllerBase
     {
         // GET api/values
         [HttpGet]
