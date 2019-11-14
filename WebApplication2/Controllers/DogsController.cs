@@ -1,20 +1,28 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
+﻿using System.Collections.Generic;
+using Library;
+using Library.Repository;
 using Microsoft.AspNetCore.Mvc;
 
 namespace WebApplication2.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-    public class DogController : ControllerBase
+    public class DogsController : ControllerBase
     {
+        private IRepository<Dog> DogRepository { get; }
+
+        public DogsController(IRepository<Dog> dogRepository)
+        {
+            DogRepository = dogRepository;
+        }
+
         // GET api/values
         [HttpGet]
-        public ActionResult<IEnumerable<string>> Get()
+        public ActionResult<IList<Dog>> Get()
         {
-            return new string[] { "value1", "value2" };
+            var dogs = DogRepository.Get();
+            return Ok(dogs);
+            // return new string[] { "value1", "value2" };
         }
 
         // GET api/values/5
@@ -24,6 +32,7 @@ namespace WebApplication2.Controllers
             return "value";
         }
 
+        /* 
         // POST api/values
         [HttpPost]
         public void Post([FromBody] string value)
@@ -40,6 +49,6 @@ namespace WebApplication2.Controllers
         [HttpDelete("{id}")]
         public void Delete(int id)
         {
-        }
+        } */
     }
 }
