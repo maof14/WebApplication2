@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Threading;
 
 namespace Library
 {
@@ -7,6 +8,7 @@ namespace Library
     {
         public IList<Dog> Get()
         {
+            Thread.Sleep(5000); // Simulate a heavy operation
             return new List<Dog>()
             {
                 new Dog()

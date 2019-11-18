@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Library;
+using Library.Helpers;
 using Library.Repository;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
@@ -31,6 +32,7 @@ namespace WebApplication2
 
             services.AddScoped<IDogService, DogService>();
             services.AddScoped<IRepository<Dog>, DogRepository>();
+            services.AddSingleton<IThreadWatcher, ThreadWatcher>();
             services.AddMemoryCache();
         }
 
@@ -51,11 +53,3 @@ namespace WebApplication2
         }
     }
 }
-
-/*
- * Vad är tanken här egentligen. 
- * Det är att det ska vara en service som returnerar lite skit.
- *
- * Sen ska det vara en MemoryCache som jag kollar i, som när jag kollar i den, ska skicka sitt event om att den är tom. Det blir bra det. 
- *
- */
