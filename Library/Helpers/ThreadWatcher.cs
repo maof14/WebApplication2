@@ -14,8 +14,10 @@ namespace Library.Helpers
 
         public bool IsRunning(string cacheName)
         {
-            // Check the dictionary to see if this thread is running. 
-            throw new NotImplementedException();
+            if (Threads.ContainsKey(cacheName))
+                return Threads[cacheName];
+            else
+                return false;
         }
 
         public void StartThread(ThreadStartedEvent threadStartedEvent)
