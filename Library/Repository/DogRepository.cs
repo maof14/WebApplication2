@@ -42,13 +42,19 @@ namespace Library.Repository
         private void OnThreadFinishedEvent(object sender, ThreadFinishedEvent e)
         {
             Console.WriteLine("Stopped thread!!!!!!");
-            ThreadWatcher.FinishThread(e);
+            lock (ThreadWatcher)
+            {
+                ThreadWatcher.FinishThread(e);
+            }
         }
 
         private void OnThreadStartedEvent(object sender, ThreadStartedEvent e)
         {
             Console.WriteLine("Started thread!!!!!!");
-            ThreadWatcher.StartThread(e);
+            lock (ThreadWatcher)
+            {
+                ThreadWatcher.StartThread(e);
+            }
         }
 
         public IList<Dog> Get()
@@ -59,11 +65,17 @@ namespace Library.Repository
             {
                 Task<IList<Dog>> dbFetchTask = new Task<IList<Dog>>(() => DogService.Get());
 
-                ThreadStartedEvent?.Invoke(this, new ThreadStartedEvent(cacheName)); // Fire:a event.
-
-                if(ThreadWatcher.IsRunning(cacheName))
+                bool isRunning = false;
+                lock (ThreadWatcher)
+                {
+                    isRunning = ThreadWatcher.IsRunning(cacheName);
+                }
+                if (!isRunning)
+                {
+                    ThreadStartedEvent?.Invoke(this, new ThreadStartedEvent(cacheName)); // Fire:a event.
                     dbFetchTask.Start(); // Starta bara tråden, om det inte redan körs en sådan. 
-
+                }
+                
                 dbFetchTask.ContinueWith(x =>
                 {
                     MemoryCache.Set(cacheName, x.Result, options: MemoryCacheEntryOptions);

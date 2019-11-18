@@ -32,7 +32,7 @@ namespace WebApplication2
 
             services.AddScoped<IDogService, DogService>();
             services.AddScoped<IRepository<Dog>, DogRepository>();
-            services.AddScoped<IThreadWatcher, ThreadWatcher>();
+            services.AddSingleton<IThreadWatcher, ThreadWatcher>();
             services.AddMemoryCache();
         }
 
@@ -53,11 +53,3 @@ namespace WebApplication2
         }
     }
 }
-
-/*
- * Vad är tanken här egentligen. 
- * Det är att det ska vara en service som returnerar lite skit.
- *
- * Sen ska det vara en MemoryCache som jag kollar i, som när jag kollar i den, ska skicka sitt event om att den är tom. Det blir bra det. 
- *
- */

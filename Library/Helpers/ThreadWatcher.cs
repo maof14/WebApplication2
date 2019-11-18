@@ -11,14 +11,11 @@ namespace Library.Helpers
 
     public class ThreadWatcher : IThreadWatcher
     {
-        private volatile Dictionary<string, bool> Threads = new Dictionary<string, bool>();
+        private Dictionary<string, bool> Threads = new Dictionary<string, bool>();
 
         public bool IsRunning(string cacheName)
         {
-            if (Threads.ContainsKey(cacheName))
-                return Threads[cacheName];
-            else
-                return false;
+            return Threads.ContainsKey(cacheName) && Threads[cacheName];
         }
 
         public void StartThread(ThreadStartedEvent threadStartedEvent)
