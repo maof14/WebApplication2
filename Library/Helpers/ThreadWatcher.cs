@@ -1,10 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Text;
+using Library.Repository;
 
 namespace Library.Helpers
 {
-    // This is the event subscriber. 
+    // This is the event subscriber (listener)
 
     public class ThreadWatcher : IThreadWatcher
     {
@@ -15,7 +16,15 @@ namespace Library.Helpers
             // Check the dictionary to see if this thread is running. 
             throw new NotImplementedException();
         }
+
+        public void StartThread(ThreadStartedEvent threadStartedEvent)
+        {
+            throw new NotImplementedException();
+        }
+
+        public void FinishThread(ThreadFinishedEvent threadFinishedEvent)
+        {
+            throw new NotImplementedException();
+        }
     }
-
-
 }

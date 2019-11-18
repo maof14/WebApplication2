@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Text;
+using Library.Repository;
 
 namespace Library.Helpers
 {
@@ -11,6 +12,9 @@ namespace Library.Helpers
         /// </summary>
         /// <param name="cacheName"></param>
         /// <returns></returns>
-        bool IsRunning(string cacheName); 
+        bool IsRunning(string cacheName);
+
+        void StartThread(ThreadStartedEvent threadStartedEvent);
+        void FinishThread(ThreadFinishedEvent threadFinishedEvent);
     }
 }

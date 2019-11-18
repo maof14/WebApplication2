@@ -4,6 +4,7 @@ using System.Reflection.Metadata.Ecma335;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
+using Library.Helpers;
 using Microsoft.Extensions.Caching.Memory;
 
 namespace Library.Repository
@@ -11,33 +12,41 @@ namespace Library.Repository
     public class DogRepository : IRepository<Dog>
     {
         private IMemoryCache MemoryCache { get; }
-        private IDogService DogService { get;  }
-        private MemoryCacheEntryOptions MemoryCacheEntryOptions { get; }
 
+        private IDogService DogService { get; }
+
+        private IThreadWatcher ThreadWatcher { get; }
+
+        public event EventHandler<ThreadStartedEvent> ThreadStartedEvent;
+        public event EventHandler<ThreadFinishedEvent> ThreadFinishedEvent;
+
+        private MemoryCacheEntryOptions MemoryCacheEntryOptions { get; }
 
         private string cacheName = "DogCache";
 
-        public DogRepository(IMemoryCache memoryCache, IDogService dogService)
+        public DogRepository(IMemoryCache memoryCache, IDogService dogService, IThreadWatcher threadWatcher)
         {
             MemoryCache = memoryCache;
             DogService = dogService;
+            ThreadWatcher = threadWatcher;
+
             MemoryCacheEntryOptions = new MemoryCacheEntryOptions()
             {
                 AbsoluteExpirationRelativeToNow = TimeSpan.FromSeconds(10)
-            }.RegisterPostEvictionCallback(EvictionCallback);
-            CreateMemoryCacheChecker();
+            };
+
+            ThreadStartedEvent += OnThreadStartedEvent;
+            ThreadFinishedEvent += OnThreadFinishedEvent;
         }
 
-        private void EvictionCallback(object key, object value, EvictionReason reason, object state)
+        private void OnThreadFinishedEvent(object sender, ThreadFinishedEvent e)
         {
-            Console.ForegroundColor = ConsoleColor.Blue;
-            Console.WriteLine($"Cache with key: {key} expired, Reason: {reason}.");
-            Console.ResetColor();
-            Task<IList<Dog>> dbFetchTask = new Task<IList<Dog>>(() => DogService.Get());
+            ThreadWatcher.FinishThread(e);
+        }
 
-            dbFetchTask.Start();
-
-            dbFetchTask.ContinueWith((a) => { MemoryCache.Set(cacheName, a.Result, options: MemoryCacheEntryOptions); });
+        private void OnThreadStartedEvent(object sender, ThreadStartedEvent e)
+        {
+            ThreadWatcher.StartThread(e);
         }
 
         public IList<Dog> Get()
@@ -46,9 +55,17 @@ namespace Library.Repository
 
             if (result == null)
             {
-                Console.WriteLine($"Using Service for {cacheName}.");
-                result = DogService.Get();
-                MemoryCache.Set(cacheName, result, options: MemoryCacheEntryOptions);
+                Task<IList<Dog>> dbFetchTask = new Task<IList<Dog>>(() => DogService.Get());
+
+                ThreadStartedEvent?.Invoke(this, new ThreadStartedEvent(cacheName)); // Fire:a event.
+
+                dbFetchTask.Start(); // Starta bara tråden, om det inte redan körs en sådan. 
+
+                dbFetchTask.ContinueWith(x =>
+                {
+                    MemoryCache.Set(cacheName, x.Result, options: MemoryCacheEntryOptions);
+                    ThreadFinishedEvent?.Invoke(this, new ThreadFinishedEvent(cacheName)); // Tala om att tråden är klar
+                });
             }
             else
             {
@@ -56,19 +73,6 @@ namespace Library.Repository
             }
 
             return result;
-        }
-
-        void CreateMemoryCacheChecker()
-        {
-            new Task(() =>
-            {
-                while (true)
-                {
-                    var cache = MemoryCache.Get(cacheName); // Kolla i memorycachen hela tiden, bör trigga
-                    Console.WriteLine("Kollar memorycachen...");
-                    Thread.Sleep(1000);
-                }
-            }).Start(TaskScheduler.Default);
         }
     }
 }
