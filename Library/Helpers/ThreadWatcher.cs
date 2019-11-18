@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Text;
 using Library.Repository;
 
@@ -19,12 +20,18 @@ namespace Library.Helpers
 
         public void StartThread(ThreadStartedEvent threadStartedEvent)
         {
-            throw new NotImplementedException();
+            if (Threads.ContainsKey(threadStartedEvent.Name))
+                Threads[threadStartedEvent.Name] = true;
+            else
+                Threads.Add(threadStartedEvent.Name, true);
         }
 
         public void FinishThread(ThreadFinishedEvent threadFinishedEvent)
         {
-            throw new NotImplementedException();
+            if (Threads.ContainsKey(threadFinishedEvent.Name))
+                Threads[threadFinishedEvent.Name] = false;
+            else
+                Threads.Add(threadFinishedEvent.Name, false); // Should never ever happen, because it is never finished before initialized... 
         }
     }
 }
