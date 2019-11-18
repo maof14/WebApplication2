@@ -13,25 +13,36 @@ namespace Library.Helpers
     {
         private Dictionary<string, bool> Threads = new Dictionary<string, bool>();
 
+        private object _lock = new object();
+
         public bool IsRunning(string cacheName)
         {
-            return Threads.ContainsKey(cacheName) && Threads[cacheName];
+            lock (_lock)
+            {
+                return Threads.ContainsKey(cacheName) && Threads[cacheName];
+            }
         }
 
-        public void StartThread(ThreadStartedEvent threadStartedEvent)
+        public void OnStartThread(object sender, ThreadStartedEvent args)
         {
-            if (Threads.ContainsKey(threadStartedEvent.Name))
-                Threads[threadStartedEvent.Name] = true;
-            else
-                Threads.Add(threadStartedEvent.Name, true);
+            lock (_lock)
+            {
+                if (Threads.ContainsKey(args.Name))
+                    Threads[args.Name] = true;
+                else
+                    Threads.Add(args.Name, true);
+            }
         }
 
-        public void FinishThread(ThreadFinishedEvent threadFinishedEvent)
+        public void OnFinishThread(object sender, ThreadFinishedEvent args)
         {
-            if (Threads.ContainsKey(threadFinishedEvent.Name))
-                Threads[threadFinishedEvent.Name] = false;
-            else
-                Threads.Add(threadFinishedEvent.Name, false); // Should never ever happen, because it is never finished before initialized... 
+            lock (_lock)
+            {
+                if (Threads.ContainsKey(args.Name))
+                    Threads[args.Name] = false;
+                else
+                    Threads.Add(args.Name, false); // Should never ever happen, because it is never finished before initialized... 
+            }
         }
     }
 }
