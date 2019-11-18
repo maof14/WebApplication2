@@ -41,11 +41,13 @@ namespace Library.Repository
 
         private void OnThreadFinishedEvent(object sender, ThreadFinishedEvent e)
         {
+            Console.WriteLine("Stopped thread!!!!!!");
             ThreadWatcher.FinishThread(e);
         }
 
         private void OnThreadStartedEvent(object sender, ThreadStartedEvent e)
         {
+            Console.WriteLine("Started thread!!!!!!");
             ThreadWatcher.StartThread(e);
         }
 
@@ -59,7 +61,8 @@ namespace Library.Repository
 
                 ThreadStartedEvent?.Invoke(this, new ThreadStartedEvent(cacheName)); // Fire:a event.
 
-                dbFetchTask.Start(); // Starta bara tråden, om det inte redan körs en sådan. 
+                if(ThreadWatcher.IsRunning(cacheName))
+                    dbFetchTask.Start(); // Starta bara tråden, om det inte redan körs en sådan. 
 
                 dbFetchTask.ContinueWith(x =>
                 {

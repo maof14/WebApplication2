@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.Threading;
 using Library.Repository;
 
 namespace Library.Helpers
@@ -10,7 +11,7 @@ namespace Library.Helpers
 
     public class ThreadWatcher : IThreadWatcher
     {
-        private Dictionary<string, bool> Threads = new Dictionary<string, bool>();
+        private volatile Dictionary<string, bool> Threads = new Dictionary<string, bool>();
 
         public bool IsRunning(string cacheName)
         {
