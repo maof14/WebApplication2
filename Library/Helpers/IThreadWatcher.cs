@@ -14,8 +14,8 @@ namespace Library.Helpers
         /// <returns></returns>
         bool IsRunning(string cacheName);
 
-        void StartThread(ThreadStartedEvent threadStartedEvent);
+        void OnStartThread(object sender, ThreadStartedEvent args);
 
-        void FinishThread(ThreadFinishedEvent threadFinishedEvent);
+        void OnFinishThread(object sender, ThreadFinishedEvent args);
     }
 }

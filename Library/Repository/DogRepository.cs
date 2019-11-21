@@ -35,26 +35,8 @@ namespace Library.Repository
                 AbsoluteExpirationRelativeToNow = TimeSpan.FromSeconds(10)
             };
 
-            ThreadStartedEvent += OnThreadStartedEvent;
-            ThreadFinishedEvent += OnThreadFinishedEvent;
-        }
-
-        private void OnThreadFinishedEvent(object sender, ThreadFinishedEvent e)
-        {
-            Console.WriteLine("Stopped thread!!!!!!");
-            lock (ThreadWatcher)
-            {
-                ThreadWatcher.FinishThread(e);
-            }
-        }
-
-        private void OnThreadStartedEvent(object sender, ThreadStartedEvent e)
-        {
-            Console.WriteLine("Started thread!!!!!!");
-            lock (ThreadWatcher)
-            {
-                ThreadWatcher.StartThread(e);
-            }
+            ThreadStartedEvent += ThreadWatcher.OnStartThread;
+            ThreadFinishedEvent += ThreadWatcher.OnFinishThread;
         }
 
         public IList<Dog> Get()
@@ -66,10 +48,8 @@ namespace Library.Repository
                 Task<IList<Dog>> dbFetchTask = new Task<IList<Dog>>(() => DogService.Get());
 
                 bool isRunning = false;
-                lock (ThreadWatcher)
-                {
-                    isRunning = ThreadWatcher.IsRunning(cacheName);
-                }
+                isRunning = ThreadWatcher.IsRunning(cacheName);
+
                 if (!isRunning)
                 {
                     ThreadStartedEvent?.Invoke(this, new ThreadStartedEvent(cacheName)); // Fire:a event.
